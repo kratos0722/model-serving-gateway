@@ -28,6 +28,7 @@ from .schemas import (
     ModelInfo,
     PredictRequest,
     PredictResponse,
+    ReadyResponse,
 )
 
 
@@ -115,9 +116,31 @@ def create_app(config: Optional[GatewayConfig] = None) -> FastAPI:
 
     @app.get("/healthz", response_model=HealthResponse)
     async def healthz():
+        # Liveness: the process is up and artifacts were loaded at startup.
         return HealthResponse(
             status="ok", models_loaded=len(app.state.registry.list_models())
         )
+
+    @app.get("/readyz", response_model=ReadyResponse)
+    async def readyz():
+        # Readiness: every registered model can actually score. A model that
+        # loaded but cannot produce a prediction (e.g. a corrupt artifact)
+        # makes the gateway NOT ready, so traffic is not routed to it.
+        registry: ModelRegistry = app.state.registry
+        models = registry.all()
+        unready = []
+        for model in models:
+            probe = {feature: 0.0 for feature in model.feature_order}
+            try:
+                model.predict(probe)
+            except Exception:
+                unready.append(f"{model.name}:{model.version}")
+        if unready:
+            return JSONResponse(
+                status_code=503,
+                content={"status": "not_ready", "unready_models": unready},
+            )
+        return ReadyResponse(status="ready", models_ready=len(models))
 
     @app.get("/models", response_model=list[ModelInfo])
     async def models():

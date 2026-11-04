@@ -44,9 +44,15 @@ them is the real subject, and it generalizes directly to heavyweight backends
                               label, shadowed, shadow_version}
 
   GET /healthz   liveness + models loaded
+  GET /readyz    readiness: 200 only if every model can score, else 503
   GET /models    registry listing (name, version, weights, feature order)
   GET /metrics   Prometheus text exposition
 ```
+
+`/healthz` is a **liveness** probe (the process is up). `/readyz` is a
+**readiness** probe: it scores every registered model with a zero vector and
+returns `200` only when all succeed, otherwise `503` with the unready versions —
+so a pod that loaded a corrupt artifact is kept out of rotation.
 
 ### Components
 

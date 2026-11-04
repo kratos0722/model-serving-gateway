@@ -45,6 +45,10 @@ class ModelRegistry:
     def versions(self, name: str) -> list[str]:
         return sorted(v for (n, v) in self._models if n == name)
 
+    def all(self) -> list[LogisticModel]:
+        """Every registered model, in a stable (name, version) order."""
+        return [self._models[key] for key in sorted(self._models)]
+
     def list_models(self) -> list[dict]:
         return [self._models[key].info() for key in sorted(self._models)]
 

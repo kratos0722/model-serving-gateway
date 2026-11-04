@@ -49,6 +49,11 @@ class HealthResponse(BaseModel):
     models_loaded: int
 
 
+class ReadyResponse(BaseModel):
+    status: str
+    models_ready: int
+
+
 class ErrorResponse(BaseModel):
     error: str
     detail: str
