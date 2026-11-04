@@ -1,0 +1,8 @@
+{
+  "name": "ranker",
+  "version": "v2",
+  "description": "Candidate ranker with retuned weights. Rolled out via canary.",
+  "feature_order": ["recency", "ctr", "price_norm", "query_match"],
+  "weights": [0.3, -1.1, 2.0, -0.4],
+  "bias": 0.2
+}

@@ -1,0 +1,8 @@
+{
+  "name": "ranker",
+  "version": "v1",
+  "description": "Baseline logistic ranker. Stable production model.",
+  "feature_order": ["recency", "ctr", "price_norm", "query_match"],
+  "weights": [1.2, 2.5, -0.8, 1.7],
+  "bias": -0.5
+}
